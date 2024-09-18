@@ -8,7 +8,7 @@ Multivariate statistical analysis of a cereal dataset using R. Includes data cle
    - Compute the correlation matrix for the numerical variables.
    - Conduct principal component analysis (PCA) to understand variance distribution and dimensionality reduction.
    - Visualize the dataset in two dimensions using PCA.
-   - 
+     
 ### Repository Structure
 `Cereal_Analysis.Rmd` - R Markdown file containing the cereal dataset analysis.
 
