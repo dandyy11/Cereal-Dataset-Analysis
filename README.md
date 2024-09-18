@@ -13,6 +13,7 @@ Cereal Dataset: The cereal dataset from the `liver` R package was used to unders
      
 ### Repository Structure
 `Cereal_Analysis.Rmd` - R Markdown file containing the cereal dataset analysis.
+`Detailed_Report.pdf` - PDF file with the comprehensive report of the analysis.
 
 
 ### Findings
