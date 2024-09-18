@@ -1,0 +1,103 @@
+---
+title: "Multivariate Analysis of Cereal Dataset"
+author: "Salman Imtiaz"
+date: "2024-09-18"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+## Multivariate Analysis of Cereal Dataset
+This analysis explores the cereal dataset from the `liver` R package. The analysis includes data cleaning, correlation matrix creation, principal component analysis (PCA), and visualization to gain insights into the nutritional composition of cereals.
+
+```{r combined-code}
+# Load necessary libraries
+if (!requireNamespace("liver", quietly = TRUE)) {
+  install.packages("liver")
+}
+library(ggplot2)
+library(liver)
+library(dplyr)
+library(corrplot)
+library(factoextra)
+
+# 1. Data Preparation
+data(cereal, package = "liver") 
+cereal_cleaned <- select(cereal, -name, -manuf, -type, -shelf)
+head(cereal_cleaned)
+
+# Plot the distribution of calories
+ggplot(cereal_cleaned, aes(x = calories)) +
+  geom_histogram(binwidth = 10, fill = "blue", color = "black") +
+  labs(title = "Distribution of Calories in Cereal", x = "Calories", y = "Count")
+
+# 2. Correlation Matrix
+cereal_numeric <- select_if(cereal_cleaned, is.numeric)
+cor_matrix <- cor(cereal_numeric)
+cor_matrix_rounded <- round(cor_matrix, 2)
+corrplot(cor_matrix_rounded, method = "color", type = "upper", tl.cex = 0.6)
+print(cor_matrix_rounded)
+
+# 3. Principal Component Analysis (PCA)
+cereal_quant <- select(cereal, where(is.numeric)) %>% 
+  select(-rating)
+cereal_quant <- na.omit(cereal_quant)
+pca_result <- prcomp(cereal_quant, scale. = TRUE)
+
+# Visualize importance of PCA
+fviz_eig(pca_result)
+summary(pca_result)
+
+# 4. Explained Variance Ratio
+explained_variance <- pca_result$sdev^2
+explained_variance_ratio <- explained_variance / sum(explained_variance)
+print(explained_variance_ratio)
+
+# 5. Scree Plot
+var_explained <- pca_result$sdev^2 / sum(pca_result$sdev^2)
+pc_data <- data.frame(PrincipalComponent = 1:length(var_explained),
+                      VarianceExplained = var_explained)
+ggplot(pc_data, aes(x = PrincipalComponent, y = VarianceExplained)) +
+  geom_line() + geom_point() +
+  theme_minimal() +
+  ggtitle("Scree Plot") +
+  xlab("Principal Component") +
+  ylab("Proportion of Variance Explained")
+
+# 6. 2D Visualization Using PCA
+scores <- pca_result$x[, 1:2]
+scores_df <- as.data.frame(scores)
+names(scores_df) <- c("PC1", "PC2")
+ggplot(scores_df, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  theme_minimal() +
+  ggtitle("2D Visualization Using First Two Principal Components") +
+  xlab("First Principal Component (PC1)") +
+  ylab("Second Principal Component (PC2)")
+
+# 7. PC1 Scores vs. Rating
+PC1_scores <- pca_result$x[, 1]
+ratings <- cereal$rating
+plot(PC1_scores, ratings, xlab = "First Principal Component Scores", ylab = "Rating", main = "PC1 Scores vs. Rating", pch = 19)
+abline(lm(ratings ~ PC1_scores), col = "red")
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
